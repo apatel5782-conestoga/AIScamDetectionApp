@@ -8,9 +8,10 @@ export default function RiskBreakdown({ analysis }: { analysis: FraudAnalysis | 
 
   return (
     <Card className="p-6">
-      <h3 className="text-lg font-semibold text-gray-900">Risk Breakdown Explanation</h3>
+      <h3 className="text-lg font-semibold text-gray-900">Why this result was flagged</h3>
       <p className="mt-2 text-sm text-gray-600">
-        Confidence score is derived from weighted indicators: manipulation, urgency, URL patterns, and impersonation signals.
+        The score is based on transparent heuristics such as urgency cues, impersonation patterns, credential requests,
+        and risky link behavior. These explanations are meant to help the user verify the message independently.
       </p>
       <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-700">
         {analysis.reasons.map((reason, index) => (

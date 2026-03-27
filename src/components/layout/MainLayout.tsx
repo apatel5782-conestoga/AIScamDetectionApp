@@ -53,7 +53,7 @@ export default function MainLayout() {
                 <span className="h-0.5 w-4 bg-gray-700" />
               </button>
               <div>
-                <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Workspace</p>
+                <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Triage Workspace</p>
                 <p className="text-sm font-semibold text-gray-800">{getPageLabel(location.pathname)}</p>
               </div>
             </div>

@@ -52,7 +52,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-16">
       <div className="mx-auto max-w-xl space-y-6">
-        <PageHeader title="Sign In" subtitle="Secure access to the AI Fraud Intelligence & Protection System." />
+        <PageHeader title="Sign In" subtitle="Access your saved triage sessions, private reports, and admin review workflow." />
         <Card className="p-6">
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <div>
@@ -119,11 +119,29 @@ export default function LoginPage() {
           <div className="mt-6 border-t border-gray-100 pt-4">
             <p className="text-xs uppercase tracking-wide text-gray-400">Demo access</p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <button className="btn-primary" onClick={() => { loginAsDemo("user"); navigate(redirectPath); }}>
-                Login as User
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => {
+                  setError(null);
+                  loginAsDemo("user")
+                    .then(() => navigate(redirectPath))
+                    .catch((demoError: Error) => setError(demoError.message || "Unable to start user demo."));
+                }}
+              >
+                Login as User Demo
               </button>
-              <button className="btn-secondary" onClick={() => { loginAsDemo("admin"); navigate("/admin"); }}>
-                Login as Admin
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => {
+                  setError(null);
+                  loginAsDemo("admin")
+                    .then(() => navigate("/admin"))
+                    .catch((demoError: Error) => setError(demoError.message || "Unable to start admin demo."));
+                }}
+              >
+                Login as Admin Demo
               </button>
             </div>
           </div>

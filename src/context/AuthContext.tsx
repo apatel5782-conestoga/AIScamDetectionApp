@@ -1,6 +1,13 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import type { AuthUser } from "../models/AuthUser";
-import { getMyProfile, loginUser, registerUser, requestPasswordReset, updateMyProfile } from "../services/authService";
+import {
+  getMyProfile,
+  loginDemoUser,
+  loginUser,
+  registerUser,
+  requestPasswordReset,
+  updateMyProfile,
+} from "../services/authService";
 
 type AuthContextValue = {
   user: AuthUser | null;
@@ -10,7 +17,7 @@ type AuthContextValue = {
   forgotPassword: (email: string) => Promise<string>;
   refreshProfile: () => Promise<void>;
   updateProfile: (payload: Partial<Pick<AuthUser, "name" | "email" | "phone" | "username">>) => Promise<void>;
-  loginAsDemo: (role: "user" | "admin") => void;
+  loginAsDemo: (role: "user" | "admin") => Promise<void>;
   logout: () => void;
 };
 
@@ -58,22 +65,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("auth_user", JSON.stringify(profile));
   }, [token]);
 
-  const loginAsDemo = (role: "user" | "admin") => {
-    const demoUser: AuthUser = {
-      id: crypto.randomUUID(),
-      name: role === "admin" ? "Admin Analyst" : "Fraud Analyst",
-      username: role === "admin" ? "admin_analyst" : "fraud_analyst",
-      email: role === "admin" ? "admin@fraud-intel.local" : "user@fraud-intel.local",
-      phone: "(555) 010-2040",
-      role,
-    };
-
-    const demoToken = `demo-jwt-${crypto.randomUUID()}`;
-    setUser(demoUser);
-    setToken(demoToken);
-    localStorage.setItem("auth_user", JSON.stringify(demoUser));
-    localStorage.setItem("auth_token", demoToken);
-  };
+  const loginAsDemo = useCallback(async (role: "user" | "admin") => {
+    const { token: newToken, user: newUser } = await loginDemoUser({ role });
+    setUser(newUser);
+    setToken(newToken);
+    localStorage.setItem("auth_user", JSON.stringify(newUser));
+    localStorage.setItem("auth_token", newToken);
+  }, []);
 
   const logout = () => {
     setUser(null);
@@ -94,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loginAsDemo,
       logout,
     }),
-    [user, token, login, register, forgotPassword, refreshProfile, updateProfile],
+    [user, token, login, register, forgotPassword, refreshProfile, updateProfile, loginAsDemo],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

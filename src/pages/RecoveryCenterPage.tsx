@@ -6,12 +6,12 @@ export default function RecoveryCenterPage() {
     <div className="space-y-8">
       <PageHeader
         title="Recovery Center"
-        subtitle="Structured post-incident response steps for financial and identity recovery."
+        subtitle="Structured post-incident steps for money, account, and identity recovery after a suspicious interaction."
       />
 
       <section className="grid gap-6 md:grid-cols-2">
         <Card className="p-6">
-          <h2 className="text-xl font-semibold text-gray-900">What to do if money was lost</h2>
+          <h2 className="text-xl font-semibold text-gray-900">If money was lost</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-gray-700">
             <li>Contact your bank fraud team immediately and request transaction review.</li>
             <li>Freeze outbound payments and revoke compromised channels.</li>
@@ -20,16 +20,16 @@ export default function RecoveryCenterPage() {
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-semibold text-gray-900">How to contact bank</h2>
+          <h2 className="text-xl font-semibold text-gray-900">If credentials were exposed</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-gray-700">
-            <li>Use card-back number or official website contact only.</li>
-            <li>Request account lockdown and credential reset.</li>
-            <li>Ask for fraud case reference and escalation timeline.</li>
+            <li>Change affected passwords immediately and enable multi-factor authentication.</li>
+            <li>Review sign-in activity for unknown devices or recovery changes.</li>
+            <li>Reset passwords starting with email and banking accounts.</li>
           </ul>
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-semibold text-gray-900">How to freeze credit</h2>
+          <h2 className="text-xl font-semibold text-gray-900">If identity data was shared</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-gray-700">
             <li>Enable credit monitoring alerts through Canadian credit bureaus.</li>
             <li>Review account inquiries and new openings daily.</li>
@@ -38,11 +38,11 @@ export default function RecoveryCenterPage() {
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-semibold text-gray-900">How to report identity theft</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Preserve the case record</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-gray-700">
-            <li>File police report with preserved evidence package.</li>
-            <li>Report to Canadian Anti-Fraud Centre (placeholder link).</li>
-            <li>Notify all impacted institutions and providers.</li>
+            <li>Keep the original message, screenshots, and attachment names intact.</li>
+            <li>Store the report ID, timestamps, and every contact made with institutions.</li>
+            <li>Update the private case record as the response progresses.</li>
           </ul>
         </Card>
       </section>

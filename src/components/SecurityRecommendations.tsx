@@ -12,43 +12,30 @@ export default function SecurityRecommendations({ analysis }: Props) {
 
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-semibold text-gray-900">Security Recommendations</h3>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <article className="rounded-xl border border-gray-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-gray-900">Preventive Safety Measures</h4>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
-            <li>Enable multi-factor authentication on banking and email accounts.</li>
-            <li>Verify sender identity with official channels before responding.</li>
-            <li>Never share OTP, password, or banking credentials via text or call.</li>
-          </ul>
-        </article>
-
-        <article className="rounded-xl border border-gray-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-gray-900">Immediate Steps to Take</h4>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
-            <li>Stop engagement with suspicious sender and preserve message evidence.</li>
-            <li>Contact your bank directly if financial details were exposed.</li>
-            <li>Change affected passwords and revoke unknown active sessions.</li>
-          </ul>
-        </article>
-
-        <article className="rounded-xl border border-gray-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-gray-900">Digital Security Checklist</h4>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
-            <li>Run anti-malware and check browser extensions.</li>
-            <li>Review account sign-in logs for unknown devices.</li>
-            <li>Update device OS and app patches immediately.</li>
-          </ul>
-        </article>
-
-        <article className="rounded-xl border border-gray-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-gray-900">Identity Protection Tips</h4>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
-            <li>Set up credit bureau monitoring and fraud alerts.</li>
-            <li>Watch for unauthorized account openings or inquiries.</li>
-            <li>Store incident report references and communication records.</li>
-          </ul>
-        </article>
+      <h3 className="text-xl font-semibold text-gray-900">Recommended next steps</h3>
+      <p className="mt-2 text-sm text-gray-600">
+        These actions are prioritized from the current triage result so the user knows what to do next.
+      </p>
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
+        {analysis.recommendedActions.map((action) => (
+          <article key={`${action.priority}-${action.title}`} className="rounded-xl border border-gray-200 bg-white p-4">
+            <div className="flex items-center justify-between gap-3">
+              <h4 className="text-sm font-semibold text-gray-900">{action.title}</h4>
+              <span
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+                  action.priority === "now"
+                    ? "bg-red-50 text-red-700"
+                    : action.priority === "soon"
+                      ? "bg-amber-50 text-amber-700"
+                      : "bg-emerald-50 text-emerald-700"
+                }`}
+              >
+                {action.priority}
+              </span>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-gray-700">{action.description}</p>
+          </article>
+        ))}
       </div>
     </Card>
   );

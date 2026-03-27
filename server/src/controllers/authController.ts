@@ -23,6 +23,26 @@ async function generateUniqueUsername(base: string) {
   return candidate;
 }
 
+async function ensureDemoUser(role: "user" | "admin") {
+  const email = role === "admin" ? "demo.admin@fraudtriage.local" : "demo.user@fraudtriage.local";
+  const name = role === "admin" ? "Demo Admin Reviewer" : "Demo Triage User";
+  const username = role === "admin" ? "demo_admin" : "demo_user";
+
+  let user = await UserModel.findOne({ email });
+  if (!user) {
+    user = await UserModel.create({
+      name,
+      username,
+      email,
+      phone: "(555) 010-0000",
+      passwordHash: await bcrypt.hash(`demo-${role}-password`, 12),
+      role,
+    });
+  }
+
+  return user;
+}
+
 export async function registerController(req: Request, res: Response) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -70,4 +90,22 @@ export async function forgotPasswordController(req: Request, res: Response) {
   }
 
   return res.status(200).json({ message: "If the email exists, reset instructions will be sent." });
+}
+
+export async function demoLoginController(req: Request, res: Response) {
+  const role = req.body.role === "admin" ? "admin" : "user";
+  const user = await ensureDemoUser(role);
+  const token = signToken(String(user._id), user.role);
+
+  return res.json({
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+    },
+  });
 }

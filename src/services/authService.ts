@@ -18,6 +18,10 @@ export type LoginPayload = {
   password: string;
 };
 
+export type DemoLoginPayload = {
+  role: "user" | "admin";
+};
+
 export async function registerUser(payload: RegisterPayload): Promise<AuthResponse> {
   return apiRequest<AuthResponse>("/auth/register", {
     method: "POST",
@@ -36,6 +40,13 @@ export async function requestPasswordReset(email: string): Promise<{ message: st
   return apiRequest<{ message: string }>("/auth/forgot-password", {
     method: "POST",
     body: JSON.stringify({ email }),
+  });
+}
+
+export async function loginDemoUser(payload: DemoLoginPayload): Promise<AuthResponse> {
+  return apiRequest<AuthResponse>("/auth/demo", {
+    method: "POST",
+    body: JSON.stringify(payload),
   });
 }
 
