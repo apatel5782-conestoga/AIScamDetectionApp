@@ -37,7 +37,7 @@ export async function updateMyProfileController(req: Request, res: Response) {
     if (existing) return res.status(409).json({ message: "Username already exists" });
   }
 
-  const user = await UserModel.findByIdAndUpdate(req.user.userId, updates, { new: true });
+  const user = await UserModel.findByIdAndUpdate(req.user.userId, updates, { returnDocument: "after" });
   if (!user) return res.status(404).json({ message: "User not found" });
 
   return res.json({

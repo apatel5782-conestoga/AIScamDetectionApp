@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 
 export interface IFraudReport {
   _id?: unknown;
+  analysisSessionId?: string;
   title: string;
   description: string;
   evidenceDescription: string;
@@ -10,14 +11,18 @@ export interface IFraudReport {
   amountLost?: number;
   severity: "Low Risk" | "Medium Risk" | "High Risk" | "Critical Risk";
   legalDisclaimerAccepted: boolean;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "under_review" | "needs_more_info" | "escalated" | "closed";
   submittedBy: string;
+  reviewedBy?: string;
+  reviewedAt?: Date;
+  adminNotes?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 const fraudReportSchema = new Schema<IFraudReport>(
   {
+    analysisSessionId: { type: String, trim: true, index: true },
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     evidenceDescription: { type: String, required: true, trim: true },
@@ -30,8 +35,16 @@ const fraudReportSchema = new Schema<IFraudReport>(
       required: true,
     },
     legalDisclaimerAccepted: { type: Boolean, required: true },
-    status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending", required: true },
+    status: {
+      type: String,
+      enum: ["pending", "under_review", "needs_more_info", "escalated", "closed"],
+      default: "pending",
+      required: true,
+    },
     submittedBy: { type: String, required: true, index: true },
+    reviewedBy: { type: String, trim: true },
+    reviewedAt: { type: Date },
+    adminNotes: { type: String, trim: true },
   },
   { timestamps: true },
 );

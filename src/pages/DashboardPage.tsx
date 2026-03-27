@@ -1,138 +1,195 @@
 import { useEffect, useState } from "react";
-import ChartContainer from "../components/dashboard/ChartContainer";
-import KpiCard from "../components/dashboard/KpiCard";
-import RegionBarChart from "../components/dashboard/RegionBarChart";
-import RiskDonutChart from "../components/dashboard/RiskDonutChart";
-import TrendLineChart from "../components/dashboard/TrendLineChart";
+import { Link } from "react-router-dom";
 import Card from "../components/ui/Card";
-import ErrorBoundary from "../components/ui/ErrorBoundary";
-import PremiumButton from "../components/ui/PremiumButton";
-import SectionHeader from "../components/ui/SectionHeader";
+import PageHeader from "../components/ui/PageHeader";
+import SeverityIndicator from "../components/SeverityIndicator";
+import { useAuth } from "../context/AuthContext";
 import { fetchDashboardData } from "../services/dashboardService";
 import type { DashboardData } from "../types/dashboard";
 
 function DashboardSkeleton() {
   return (
     <div className="space-y-8">
-      <div className="h-[200px] animate-pulse rounded-2xl border border-gray-100 bg-white" />
-      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
+      <div className="h-36 animate-pulse rounded-2xl border border-gray-100 bg-white" />
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="h-28 animate-pulse rounded-2xl border border-gray-100 bg-white" />
         ))}
       </div>
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="h-[280px] animate-pulse rounded-2xl border border-gray-100 bg-white" />
-        <div className="h-[280px] animate-pulse rounded-2xl border border-gray-100 bg-white" />
-        <div className="h-[280px] animate-pulse rounded-2xl border border-gray-100 bg-white" />
+      <div className="grid gap-6 xl:grid-cols-2">
+        <div className="h-64 animate-pulse rounded-2xl border border-gray-100 bg-white" />
+        <div className="h-64 animate-pulse rounded-2xl border border-gray-100 bg-white" />
       </div>
     </div>
   );
 }
 
-function DashboardError({ message }: { message: string }) {
-  return (
-    <Card className="p-8">
-      <h2 className="text-lg font-semibold text-gray-900">Dashboard unavailable</h2>
-      <p className="mt-2 text-sm text-gray-600">{message}</p>
-    </Card>
-  );
-}
-
 export default function DashboardPage() {
+  const { user, token } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(Boolean(token));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const controller = new AbortController();
+    if (!token) {
+      setData(null);
+      setIsLoading(false);
+      return;
+    }
 
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const dashboardData = await fetchDashboardData(controller.signal);
-        setData(dashboardData);
-      } catch (err) {
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        setError("Unable to load dashboard data. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    setIsLoading(true);
+    setError(null);
+    fetchDashboardData(token)
+      .then(setData)
+      .catch((loadError: Error) => {
+        setError(loadError.message || "Unable to load the dashboard.");
+      })
+      .finally(() => setIsLoading(false));
+  }, [token]);
 
-    fetchData();
+  if (!user) {
+    return (
+      <div className="space-y-8">
+        <PageHeader
+          title="Fraud triage workspace"
+          subtitle="Analyze suspicious messages, document evidence, and prepare private reports with an honest academic workflow."
+        />
 
-    return () => {
-      controller.abort();
-    };
-  }, []);
+        <Card className="p-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.14em] text-gray-500">How the app works</p>
+              <h2 className="mt-2 text-2xl font-semibold text-gray-900">One clear end-to-end flow</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-600">
+                Start with a suspicious message, run a triage analysis, review recommended actions, and convert the
+                result into a private report if follow-up is needed.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/analyze" className="btn-primary">
+                Start analysis
+              </Link>
+              <Link to="/login" className="btn-secondary">
+                Sign in
+              </Link>
+            </div>
+          </div>
+        </Card>
+
+        <section className="grid gap-6 md:grid-cols-3">
+          <Card className="p-6">
+            <p className="text-xs uppercase tracking-wide text-gray-400">1. Analyze</p>
+            <h3 className="mt-2 text-lg font-semibold text-gray-900">Paste suspicious content</h3>
+            <p className="mt-3 text-sm leading-6 text-gray-600">
+              Review risk score, verdict, and transparent heuristics that explain why the content was flagged.
+            </p>
+          </Card>
+          <Card className="p-6">
+            <p className="text-xs uppercase tracking-wide text-gray-400">2. Report</p>
+            <h3 className="mt-2 text-lg font-semibold text-gray-900">Create a private case</h3>
+            <p className="mt-3 text-sm leading-6 text-gray-600">
+              Reuse the triage result so the user does not have to duplicate the incident summary and evidence notes.
+            </p>
+          </Card>
+          <Card className="p-6">
+            <p className="text-xs uppercase tracking-wide text-gray-400">3. Recover</p>
+            <h3 className="mt-2 text-lg font-semibold text-gray-900">Follow guided next steps</h3>
+            <p className="mt-3 text-sm leading-6 text-gray-600">
+              Use recovery and compliance guidance for financial, account, and evidence-preservation follow-up.
+            </p>
+          </Card>
+        </section>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <DashboardSkeleton />;
   }
 
   if (error || !data) {
-    return <DashboardError message={error ?? "No dashboard data available."} />;
+    return (
+      <Card className="p-8">
+        <h2 className="text-lg font-semibold text-gray-900">Dashboard unavailable</h2>
+        <p className="mt-2 text-sm text-gray-600">{error ?? "No dashboard data available."}</p>
+      </Card>
+    );
   }
 
   return (
-    <ErrorBoundary fallback={<DashboardError message="Something went wrong while rendering the dashboard." />}>
-      <div className="space-y-8">
-        <Card className="p-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="space-y-8">
+      <PageHeader
+        title="My triage dashboard"
+        subtitle="A truthful summary of your saved analyses, submitted reports, and active case work."
+      />
+
+      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {data.metrics.map((metric) => (
+          <Card key={metric.label} className="p-6">
+            <p className="text-xs uppercase tracking-[0.14em] text-gray-500">{metric.label}</p>
+            <p className="mt-3 text-3xl font-semibold text-gray-900">{metric.value}</p>
+            <p className="mt-2 text-sm text-gray-600">{metric.helperText}</p>
+          </Card>
+        ))}
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-2">
+        <Card className="p-6">
+          <div className="flex items-center justify-between gap-3">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900">{data.heroTitle}</h1>
-              <p className="mt-3 max-w-3xl text-lg text-gray-600">{data.heroSubtitle}</p>
+              <h2 className="text-xl font-semibold text-gray-900">Recent analyses</h2>
+              <p className="mt-1 text-sm text-gray-600">Latest triage sessions tied to your account.</p>
             </div>
-            <PremiumButton className="mt-1">Run New Analysis</PremiumButton>
+            <Link to="/analyze" className="btn-secondary !px-3 !py-2 !text-xs">
+              New analysis
+            </Link>
+          </div>
+          <div className="mt-5 space-y-3">
+            {data.recentAnalyses.length === 0 && <p className="text-sm text-gray-500">No saved analyses yet.</p>}
+            {data.recentAnalyses.map((analysis) => (
+              <article key={analysis.id} className="rounded-2xl border border-gray-200 bg-white p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{analysis.fraudType}</p>
+                    <p className="mt-1 text-sm text-gray-600">{analysis.message.slice(0, 140)}</p>
+                  </div>
+                  <SeverityIndicator severity={analysis.severity} riskScore={analysis.riskScore} />
+                </div>
+              </article>
+            ))}
           </div>
         </Card>
 
-        <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {data.kpis.map((kpi) => (
-            <KpiCard key={kpi.label} {...kpi} />
-          ))}
-        </section>
-
-        <section className="space-y-4">
-          <SectionHeader title="Analytics" subtitle="Live fraud monitoring and distribution insights" />
-          <div className="grid gap-6 xl:grid-cols-3">
-            <ChartContainer title="Fraud Trend" subtitle="Monthly anomaly trajectory">
-              <TrendLineChart trend={data.trend} />
-            </ChartContainer>
-
-            <ChartContainer title="Region Distribution" subtitle="Case volume by province">
-              <RegionBarChart />
-            </ChartContainer>
-
-            <ChartContainer title="Risk Breakdown" subtitle="Current severity ratio">
-              <RiskDonutChart />
-            </ChartContainer>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <SectionHeader title="Activity Feed" subtitle="Recent platform alerts and analyst actions" />
-          <Card className="p-6">
-            <div className="space-y-3">
-              {data.alerts.map((alert, index) => (
-                <article key={alert.id} className="flex items-start gap-3 rounded-2xl border border-gray-100 p-4">
-                  <div className={`mt-0.5 grid h-9 w-9 place-items-center rounded-full text-xs font-semibold ${alert.severity === "Critical" ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"}`}>
-                    {index + 1}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-gray-800">{alert.id}</p>
-                      <p className="text-xs text-gray-500">{alert.date}</p>
-                    </div>
-                    <p className="mt-1 text-sm text-gray-700">{alert.message}</p>
-                  </div>
-                </article>
-              ))}
+        <Card className="p-6">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">Recent reports</h2>
+              <p className="mt-1 text-sm text-gray-600">Private case records created from your triage workflow.</p>
             </div>
-          </Card>
-        </section>
-      </div>
-    </ErrorBoundary>
+            <Link to="/reports" className="btn-secondary !px-3 !py-2 !text-xs">
+              View reports
+            </Link>
+          </div>
+          <div className="mt-5 space-y-3">
+            {data.recentReports.length === 0 && <p className="text-sm text-gray-500">No reports submitted yet.</p>}
+            {data.recentReports.map((report) => (
+              <article key={report._id} className="rounded-2xl border border-gray-200 bg-white p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{report.title}</p>
+                    <p className="mt-1 text-sm text-gray-600">
+                      {report.fraudType} | {report.channel} | {report.severity}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium capitalize text-gray-700">
+                    {report.status.replace(/_/g, " ")}
+                  </span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </Card>
+      </section>
+    </div>
   );
 }

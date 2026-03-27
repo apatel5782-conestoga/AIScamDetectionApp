@@ -2,7 +2,7 @@ import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import xssClean from "xss-clean";
+import analysisRouter from "./routes/analysisRoutes";
 import { healthController } from "./controllers/healthController";
 import { errorHandler, notFoundHandler } from "./middleware/errorMiddleware";
 import adminRouter from "./routes/adminRoutes";
@@ -17,7 +17,6 @@ export function createApp() {
   app.use(helmet());
   app.use(cors({ origin: true, credentials: false }));
   app.use(express.json({ limit: "1mb" }));
-  app.use(xssClean());
 
   app.use(
     "/api",
@@ -30,6 +29,7 @@ export function createApp() {
   );
 
   app.get("/api/health", healthController);
+  app.use("/api/analyses", analysisRouter);
   app.use("/api/auth", authRouter);
   app.use("/api/users", userRouter);
   app.use("/api/reports", reportRouter);

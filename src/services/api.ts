@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5050/api";
 
 type ApiRequestOptions = RequestInit & {
   authToken?: string | null;
@@ -17,7 +17,18 @@ export async function apiRequest<T>(path: string, options?: ApiRequestOptions): 
   if (!response.ok) {
     const contentType = response.headers.get("content-type") || "";
     if (contentType.includes("application/json")) {
-      const payload = (await response.json()) as { message?: string };
+      const payload = (await response.json()) as {
+        message?: string;
+        errors?: Array<{ path?: string; msg?: string }>;
+      };
+
+      if (Array.isArray(payload.errors) && payload.errors.length > 0) {
+        const formatted = payload.errors
+          .map((error) => (error.path ? `${error.path}: ${error.msg || "Invalid value"}` : error.msg || "Invalid value"))
+          .join(" | ");
+        throw new Error(formatted);
+      }
+
       throw new Error(payload.message || `Request failed: ${response.status}`);
     }
     throw new Error(`Request failed: ${response.status}`);

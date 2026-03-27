@@ -1,237 +1,120 @@
-import type {
-  ConfidenceBreakdown,
-  FraudAnalysis,
-  ReportToAuthoritiesPayload,
-  ReportToAuthoritiesResponse,
-  RiskFactor,
-} from "../types/fraud";
-import { getApiBase } from "./api";
-import { eventLogger } from "../utils/eventLogger";
-import { getSeverityByScore } from "../utils/severityEngine";
+import type { FraudAnalysis, FraudChannel, EvidenceFileMeta } from "../types/fraud";
+import { apiRequest } from "./api";
 
-type Rule = {
-  test: RegExp;
-  weight: number;
-  reason: string;
-  bucket: keyof ConfidenceBreakdown;
+const LAST_ANALYSIS_KEY = "last_fraud_triage_analysis";
+
+type AnalysisApiResponse = {
+  id: string;
+  messageText: string;
+  channel: FraudChannel;
+  evidenceSummary?: string;
+  evidenceFiles: EvidenceFileMeta[];
+  scamCategory: string;
+  triageSummary: string;
+  extractedSignals: string[];
+  fraudType: string;
+  riskScore: number;
+  confidence: number;
+  severity: FraudAnalysis["severity"];
+  verdict: FraudAnalysis["verdict"];
+  reasons: string[];
+  confidenceBreakdown: FraudAnalysis["confidenceBreakdown"];
+  riskFactors: FraudAnalysis["riskFactors"];
+  similarCases: FraudAnalysis["similarCases"];
+  recommendedActions: FraudAnalysis["recommendedActions"];
+  reportDraft: FraudAnalysis["reportDraft"];
+  caseTimeline: FraudAnalysis["caseTimeline"];
+  safeUseNotice: string;
+  createdAt: string;
 };
 
-const RULES: Rule[] = [
-  {
-    test: /urgent|immediately|act now|last chance/i,
-    weight: 19,
-    reason: "Urgency pressure language detected.",
-    bucket: "urgencyPressure",
-  },
-  {
-    test: /verify|password|otp|security code|pin/i,
-    weight: 24,
-    reason: "Credential extraction behavior detected.",
-    bucket: "emailThreatIndicators",
-  },
-  {
-    test: /click here|visit link|http:\/\/|https:\/\/|www\./i,
-    weight: 21,
-    reason: "URL-based redirection pattern detected.",
-    bucket: "urlThreat",
-  },
-  {
-    test: /dear customer|bank team|tax agency|government|compliance notice/i,
-    weight: 18,
-    reason: "Institution impersonation indicators detected.",
-    bucket: "psychologicalManipulation",
-  },
-  {
-    test: /suspended|locked|penalty|lawsuit|legal action/i,
-    weight: 17,
-    reason: "Fear-based coercion pattern detected.",
-    bucket: "psychologicalManipulation",
-  },
-];
+export type CreateAnalysisPayload = {
+  message: string;
+  channel: FraudChannel;
+  evidenceSummary?: string;
+  evidenceFiles: EvidenceFileMeta[];
+  authToken?: string | null;
+};
 
-const inFlightEscalations = new Set<string>();
-
-function normalizeBreakdown(raw: ConfidenceBreakdown): ConfidenceBreakdown {
-  const total = Object.values(raw).reduce((sum, value) => sum + value, 0);
-  if (total === 0) {
-    return {
-      psychologicalManipulation: 25,
-      urgencyPressure: 25,
-      urlThreat: 25,
-      emailThreatIndicators: 25,
-    };
-  }
-
+function mapAnalysis(response: AnalysisApiResponse): FraudAnalysis {
   return {
-    psychologicalManipulation: Math.round((raw.psychologicalManipulation / total) * 100),
-    urgencyPressure: Math.round((raw.urgencyPressure / total) * 100),
-    urlThreat: Math.round((raw.urlThreat / total) * 100),
-    emailThreatIndicators: Math.round((raw.emailThreatIndicators / total) * 100),
+    id: response.id,
+    message: response.messageText,
+    channel: response.channel,
+    evidenceSummary: response.evidenceSummary,
+    evidenceFiles: response.evidenceFiles,
+    scamCategory: response.scamCategory,
+    triageSummary: response.triageSummary,
+    extractedSignals: response.extractedSignals,
+    fraudType: response.fraudType,
+    riskScore: response.riskScore,
+    confidence: response.confidence,
+    severity: response.severity,
+    verdict: response.verdict,
+    reasons: response.reasons,
+    confidenceBreakdown: response.confidenceBreakdown,
+    riskFactors: response.riskFactors,
+    similarCases: response.similarCases,
+    recommendedActions: response.recommendedActions,
+    reportDraft: response.reportDraft,
+    caseTimeline: response.caseTimeline,
+    safeUseNotice: response.safeUseNotice,
+    shouldEscalate: response.severity === "High Risk" || response.severity === "Critical Risk",
+    timestamp: response.createdAt,
   };
 }
 
-function buildRiskFactors(breakdown: ConfidenceBreakdown): RiskFactor[] {
-  return [
-    {
-      key: "psychologicalManipulation",
-      label: "Psychological Manipulation",
-      value: breakdown.psychologicalManipulation,
-      description: "Detects emotional triggers, authority mimicry, and fear tactics.",
-    },
-    {
-      key: "urgencyPressure",
-      label: "Urgency Detection",
-      value: breakdown.urgencyPressure,
-      description: "Detects pressure to act quickly without verification.",
-    },
-    {
-      key: "urlThreat",
-      label: "URL Pattern Detection",
-      value: breakdown.urlThreat,
-      description: "Detects suspicious links and redirection language.",
-    },
-    {
-      key: "emailThreatIndicators",
-      label: "Email Threat Indicators",
-      value: breakdown.emailThreatIndicators,
-      description: "Detects credential requests and impersonation mail patterns.",
-    },
-  ];
+async function createAnalysis(payload: CreateAnalysisPayload): Promise<FraudAnalysis> {
+  const body = {
+    messageText: payload.message,
+    channel: payload.channel,
+    evidenceFiles: payload.evidenceFiles,
+    ...(payload.evidenceSummary?.trim() ? { evidenceSummary: payload.evidenceSummary.trim() } : {}),
+  };
+
+  const response = await apiRequest<AnalysisApiResponse>("/analyses", {
+    method: "POST",
+    authToken: payload.authToken,
+    body: JSON.stringify(body),
+  });
+
+  const analysis = mapAnalysis(response);
+  localStorage.setItem(LAST_ANALYSIS_KEY, JSON.stringify(analysis));
+  return analysis;
 }
 
-function getEscalationFingerprint(payload: ReportToAuthoritiesPayload): string {
-  return [payload.analysisId, payload.severity, payload.riskScore, payload.summary.slice(0, 90)].join("|");
+async function getMyAnalyses(authToken: string): Promise<FraudAnalysis[]> {
+  const response = await apiRequest<AnalysisApiResponse[]>("/analyses/mine", {
+    method: "GET",
+    authToken,
+  });
+
+  return response.map(mapAnalysis);
 }
 
-export class FraudAnalysisService {
-  analyzeMessage(message: string): FraudAnalysis {
-    const breakdownRaw: ConfidenceBreakdown = {
-      psychologicalManipulation: 0,
-      urgencyPressure: 0,
-      urlThreat: 0,
-      emailThreatIndicators: 0,
-    };
+function saveLatestAnalysis(analysis: FraudAnalysis) {
+  localStorage.setItem(LAST_ANALYSIS_KEY, JSON.stringify(analysis));
+}
 
-    let score = 0;
-    const reasons: string[] = [];
+function loadLatestAnalysis(): FraudAnalysis | null {
+  const raw = localStorage.getItem(LAST_ANALYSIS_KEY);
+  if (!raw) return null;
 
-    for (const rule of RULES) {
-      if (rule.test.test(message)) {
-        score += rule.weight;
-        breakdownRaw[rule.bucket] += rule.weight;
-        reasons.push(rule.reason);
-      }
-    }
-
-    if (/\bfrom:\s*.*@(gmail|yahoo|outlook)\.com/i.test(message)) {
-      score += 8;
-      breakdownRaw.emailThreatIndicators += 8;
-      reasons.push("Potential non-corporate sender domain detected.");
-    }
-
-    score = Math.min(100, score);
-
-    if (reasons.length === 0) {
-      reasons.push("No high-confidence fraud indicators detected in this sample.");
-    }
-
-    const severity = getSeverityByScore(score);
-    const confidenceBreakdown = normalizeBreakdown(breakdownRaw);
-
-    const analysis: FraudAnalysis = {
-      id: crypto.randomUUID(),
-      message,
-      riskScore: score,
-      confidence: Math.min(100, Math.round(score * 0.95 + 4)),
-      severity,
-      verdict: score >= 50 ? "Likely Fraud" : "Likely Legitimate",
-      reasons,
-      confidenceBreakdown,
-      riskFactors: buildRiskFactors(confidenceBreakdown),
-      shouldEscalate: severity === "High Risk" || severity === "Critical Risk",
-      timestamp: new Date().toISOString(),
-    };
-
-    eventLogger.log({
-      id: crypto.randomUUID(),
-      timestamp: analysis.timestamp,
-      severity: analysis.severity,
-      riskScore: analysis.riskScore,
-      messagePreview: analysis.message.slice(0, 90),
-      action: severity === "High Risk" || severity === "Critical Risk" ? "HIGH_RISK_FLAGGED" : "ANALYZED",
-    });
-
-    return analysis;
-  }
-
-  async reportToAuthorities(payload: ReportToAuthoritiesPayload): Promise<ReportToAuthoritiesResponse> {
-    const fingerprint = getEscalationFingerprint(payload);
-
-    if (inFlightEscalations.has(fingerprint)) {
-      return {
-        success: true,
-        referenceId: "DUPLICATE_BLOCKED",
-        destination: "Police Notification Queue (Mock API)",
-        status: "queued",
-      };
-    }
-
-    inFlightEscalations.add(fingerprint);
-
-    try {
-      const response = await fetch(`${getApiBase()}/escalations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error("Escalation API unavailable");
-      }
-
-      const apiResult = (await response.json()) as {
-        referenceId: string;
-        destination: string;
-        status: "queued" | "failed";
-      };
-
-      eventLogger.log({
-        id: crypto.randomUUID(),
-        timestamp: new Date().toISOString(),
-        severity: payload.severity,
-        riskScore: payload.riskScore,
-        messagePreview: payload.summary.slice(0, 90),
-        action: "CRITICAL_REPORTED",
-      });
-
-      return {
-        success: true,
-        referenceId: apiResult.referenceId,
-        destination: apiResult.destination,
-        status: apiResult.status,
-      };
-    } catch {
-      await new Promise((resolve) => setTimeout(resolve, 700));
-
-      eventLogger.log({
-        id: crypto.randomUUID(),
-        timestamp: new Date().toISOString(),
-        severity: payload.severity,
-        riskScore: payload.riskScore,
-        messagePreview: payload.summary.slice(0, 90),
-        action: "CRITICAL_REPORTED",
-      });
-
-      return {
-        success: true,
-        referenceId: `POL-${Math.floor(100000 + Math.random() * 900000)}`,
-        destination: "Police Notification Queue (Mock API)",
-        status: "queued",
-      };
-    } finally {
-      inFlightEscalations.delete(fingerprint);
-    }
+  try {
+    return JSON.parse(raw) as FraudAnalysis;
+  } catch {
+    return null;
   }
 }
 
-export const fraudAnalysisService = new FraudAnalysisService();
+function clearLatestAnalysis() {
+  localStorage.removeItem(LAST_ANALYSIS_KEY);
+}
+
+export const fraudAnalysisService = {
+  createAnalysis,
+  getMyAnalyses,
+  saveLatestAnalysis,
+  loadLatestAnalysis,
+  clearLatestAnalysis,
+};

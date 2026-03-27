@@ -1,210 +1,101 @@
-# AI Fraud Intelligence & Protection System
+# AI-Assisted Fraud Triage and Reporting
 
-Enterprise-grade full-stack academic platform for fraud intelligence, detection, private reporting, escalation simulation, location-based risk analytics, and compliance-safe recovery workflows.
+Focused academic full-stack project for analyzing suspicious messages, explaining risk signals, and converting triage results into private case reports.
 
-## Academic and Legal Disclaimer
+## Product Direction
 
-This project is an academic demonstration only.
+This version is intentionally narrower and more credible than the original broad concept.
 
-- No public accusation workflows are provided.
+Core workflow:
+1. User submits suspicious content for triage.
+2. The app returns a risk score, verdict, reasons, and recommended next steps.
+3. The user can convert that analysis into a private report with minimal re-entry.
+4. An admin can review the report, update case status, and leave internal notes.
+
+## Academic Framing
+
+- Academic demonstration only.
+- Analysis output is AI-assisted and heuristic, not legal or forensic proof.
 - Reports are private and access-controlled.
-- Output is informational and not legal advice.
-- Use official authorities for real incidents.
+- No public accusation workflow is provided.
 
-## Technology Stack
+## Main Features
+
+- Guided scam checker for suspicious email, SMS, phone, social, or web content
+- Explainable risk scoring with reason breakdown and recommended actions
+- Private reporting flow linked to stored analysis sessions
+- User dashboard with saved analyses and report history
+- Admin review queue with case lifecycle statuses
+- PDF export for authorized reports
+- Recovery and compliance guidance pages
+
+## Stack
 
 Frontend
-- React + TypeScript + Vite
+- React
+- TypeScript
+- Vite
 - Tailwind CSS
-- Chart.js (`react-chartjs-2`)
-- Mapbox GL (token-based interactive map)
 
 Backend
-- Node.js + Express + TypeScript
-- MongoDB + Mongoose
-- JWT authentication
-- Bcrypt password hashing
-- PDF generation via PDFKit
-- Helmet, rate limiting, sanitization, validation
+- Node.js
+- Express 5
+- TypeScript
+- MongoDB with Mongoose
+- JWT auth
+- PDFKit
 
-## Frontend Structure
+## Case Lifecycle
 
-```text
-src/
-  components/
-    EventLogPanel.tsx
-    Footer.tsx
-    FraudAnalysisCard.tsx
-    LegalDisclaimer.tsx
-    RegionalAnalyticsCharts.tsx
-    RegionalRiskMap.tsx
-    RiskBreakdown.tsx
-    RiskFactorVisualization.tsx
-    SecurityRecommendations.tsx
-    SeverityIndicator.tsx
-  context/
-    AuthContext.tsx
-  data/
-    canadaRegionalFraudData.ts
-  hooks/
-    useGeolocation.ts
-  models/
-    AuthUser.ts
-    FraudReport.ts
-  pages/
-    AboutPage.tsx
-    AdminDashboardPage.tsx
-    FraudDetectionPage.tsx
-    FraudReportingCenterPage.tsx
-    HomePage.tsx
-    LegalCompliancePage.tsx
-    LocationRiskIntelligencePage.tsx
-    LoginPage.tsx
-    RecoveryCenterPage.tsx
-    SignupPage.tsx
-  routes/
-    ProtectedRoute.tsx
-  services/
-    api.ts
-    FraudAnalysisService.ts
-    fraudReportService.ts
-  types/
-    fraud.ts
-  utils/
-    eventLogger.ts
-    severityEngine.ts
-```
+Reports move through this status model:
 
-## Backend Structure
+- `pending`
+- `under_review`
+- `needs_more_info`
+- `escalated`
+- `closed`
 
-```text
-server/
-  src/
-    config/
-      database.ts
-      env.ts
-      express.d.ts
-      xss-clean.d.ts
-    controllers/
-      adminController.ts
-      authController.ts
-      healthController.ts
-      reportController.ts
-    middleware/
-      authMiddleware.ts
-      errorMiddleware.ts
-      validationMiddleware.ts
-    models/
-      FraudReport.ts
-      SystemLog.ts
-      User.ts
-    routes/
-      adminRoutes.ts
-      authRoutes.ts
-      reportRoutes.ts
-    services/
-      pdfService.ts
-    utils/
-      securityChecklist.ts
-    app.ts
-    index.ts
-```
-
-## Enterprise Pages
-
-- Home
-- Fraud Detection Engine
-- Location Risk Intelligence (`Fraud Map & Regional Alerts`)
-- Fraud Reporting Center
-- Fraud Recovery Center
-- Legal & Compliance
-- Admin Dashboard (Protected)
-- About
-
-## AI Fraud Detection Engine
-
-### Severity Rules
-- `0-40` => Low Risk
-- `41-70` => Medium Risk
-- `71-85` => High Risk
-- `86-100` => Critical Risk
-
-### Detection Signals
-- Psychological manipulation
-- Urgency pressure
-- URL threat patterns
-- Email threat indicators
-- Weighted confidence calculation
-
-### Escalation Logic
-- Critical risk triggers emergency alert and `Report to Authorities` action
-- Mock police notification API call
-- Escalation event logging
-- High risk prompts bank/financial-institution contact guidance
-
-## Fraud Reporting System (Legal-Safe)
-
-- Private report submission only
-- Legal disclaimer acceptance required
-- Evidence description capture
-- PDF export endpoint
-- Role-based admin review workflow
-- Input validation and sanitization
-- Rate-limited API endpoints
-
-## Location Risk Intelligence
-
-- Browser geolocation integration
-- Mapbox interactive regional heat indicators
-- Chart.js regional frequency analytics
-- Fraud type distribution chart
-- Canada-only mock academic dataset
-
-## Security Architecture Checklist
-
-- JWT auth with expiring tokens
-- Role-based access control (`user`, `admin`)
-- Bcrypt password hashing
-- Helmet secure headers
-- API rate limiting
-- `express-validator` input validation
-- Mongo and XSS sanitization middleware
-- Private-by-default report storage
-- Defamation misuse safeguards (no public naming/public feeds)
-- Encryption at rest via database deployment controls (architecture guidance)
-
-## API Route Structure
+## API Overview
 
 Auth
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+- `POST /api/auth/demo`
+- `POST /api/auth/forgot-password`
+
+Analysis
+- `POST /api/analyses`
+- `GET /api/analyses/mine`
 
 Reports
-- `POST /api/reports` (auth)
-- `GET /api/reports/mine` (auth)
-- `GET /api/reports/:id/pdf` (auth)
+- `POST /api/reports`
+- `GET /api/reports/mine`
+- `GET /api/reports/:id/pdf`
 
 Admin
-- `GET /api/admin/reports` (admin)
-- `PATCH /api/admin/reports/:id/status` (admin)
-- `GET /api/admin/analytics` (admin)
+- `GET /api/admin/reports`
+- `PATCH /api/admin/reports/:id/status`
+- `GET /api/admin/analytics`
 
 Health
 - `GET /api/health`
 
-## Environment Variables
+## Environment
 
-Frontend (`.env`)
-- `VITE_API_BASE_URL`
-- `VITE_MAPBOX_TOKEN`
+Frontend `.env`
+```bash
+VITE_API_BASE_URL=http://localhost:5050/api
+```
 
-Backend (`server/.env`)
-- `PORT`
-- `MONGO_URI`
-- `JWT_SECRET`
-- `JWT_EXPIRES_IN`
+Backend `server/.env`
+```bash
+PORT=5050
+MONGO_URI=mongodb://127.0.0.1:27017/aifrauddb
+JWT_SECRET=replace_with_long_random_secret
+JWT_EXPIRES_IN=1d
+```
 
-## Run Instructions
+## Run
 
 Frontend
 ```bash
@@ -224,3 +115,11 @@ Build
 npm run build
 cd server && npm run build
 ```
+
+## Recommended Demo Path
+
+1. Sign in or use the demo login.
+2. Open `Analyze` and submit a suspicious message.
+3. Review the verdict, reasons, and recommended actions.
+4. Open `Reports` and submit the pre-filled private case.
+5. Sign in as admin demo and update the case status in the review queue.
