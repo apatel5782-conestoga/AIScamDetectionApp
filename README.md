@@ -1,73 +1,226 @@
-# React + TypeScript + Vite
+# AI Fraud Intelligence & Protection System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Enterprise-grade full-stack academic platform for fraud intelligence, detection, private reporting, escalation simulation, location-based risk analytics, and compliance-safe recovery workflows.
 
-Currently, two official plugins are available:
+## Academic and Legal Disclaimer
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project is an academic demonstration only.
 
-## React Compiler
+- No public accusation workflows are provided.
+- Reports are private and access-controlled.
+- Output is informational and not legal advice.
+- Use official authorities for real incidents.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Technology Stack
 
-## Expanding the ESLint configuration
+Frontend
+- React + TypeScript + Vite
+- Tailwind CSS
+- Chart.js (`react-chartjs-2`)
+- Mapbox GL (token-based interactive map)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Backend
+- Node.js + Express + TypeScript
+- MongoDB + Mongoose
+- JWT authentication
+- Bcrypt password hashing
+- PDF generation via PDFKit
+- Helmet, rate limiting, sanitization, validation
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Frontend Structure
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src/
+  components/
+    EventLogPanel.tsx
+    Footer.tsx
+    FraudAnalysisCard.tsx
+    LegalDisclaimer.tsx
+    RegionalAnalyticsCharts.tsx
+    RegionalRiskMap.tsx
+    RiskBreakdown.tsx
+    RiskFactorVisualization.tsx
+    SecurityRecommendations.tsx
+    SeverityIndicator.tsx
+  context/
+    AuthContext.tsx
+  data/
+    canadaRegionalFraudData.ts
+  hooks/
+    useGeolocation.ts
+  models/
+    AuthUser.ts
+    FraudReport.ts
+  pages/
+    AboutPage.tsx
+    AdminDashboardPage.tsx
+    FraudDetectionPage.tsx
+    FraudReportingCenterPage.tsx
+    HomePage.tsx
+    LegalCompliancePage.tsx
+    LocationRiskIntelligencePage.tsx
+    LoginPage.tsx
+    RecoveryCenterPage.tsx
+    SignupPage.tsx
+  routes/
+    ProtectedRoute.tsx
+  services/
+    api.ts
+    FraudAnalysisService.ts
+    fraudReportService.ts
+  types/
+    fraud.ts
+  utils/
+    eventLogger.ts
+    severityEngine.ts
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Backend Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```text
+server/
+  src/
+    config/
+      database.ts
+      env.ts
+      express.d.ts
+      xss-clean.d.ts
+    controllers/
+      adminController.ts
+      authController.ts
+      healthController.ts
+      reportController.ts
+    middleware/
+      authMiddleware.ts
+      errorMiddleware.ts
+      validationMiddleware.ts
+    models/
+      FraudReport.ts
+      SystemLog.ts
+      User.ts
+    routes/
+      adminRoutes.ts
+      authRoutes.ts
+      reportRoutes.ts
+    services/
+      pdfService.ts
+    utils/
+      securityChecklist.ts
+    app.ts
+    index.ts
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Enterprise Pages
+
+- Home
+- Fraud Detection Engine
+- Location Risk Intelligence (`Fraud Map & Regional Alerts`)
+- Fraud Reporting Center
+- Fraud Recovery Center
+- Legal & Compliance
+- Admin Dashboard (Protected)
+- About
+
+## AI Fraud Detection Engine
+
+### Severity Rules
+- `0-40` => Low Risk
+- `41-70` => Medium Risk
+- `71-85` => High Risk
+- `86-100` => Critical Risk
+
+### Detection Signals
+- Psychological manipulation
+- Urgency pressure
+- URL threat patterns
+- Email threat indicators
+- Weighted confidence calculation
+
+### Escalation Logic
+- Critical risk triggers emergency alert and `Report to Authorities` action
+- Mock police notification API call
+- Escalation event logging
+- High risk prompts bank/financial-institution contact guidance
+
+## Fraud Reporting System (Legal-Safe)
+
+- Private report submission only
+- Legal disclaimer acceptance required
+- Evidence description capture
+- PDF export endpoint
+- Role-based admin review workflow
+- Input validation and sanitization
+- Rate-limited API endpoints
+
+## Location Risk Intelligence
+
+- Browser geolocation integration
+- Mapbox interactive regional heat indicators
+- Chart.js regional frequency analytics
+- Fraud type distribution chart
+- Canada-only mock academic dataset
+
+## Security Architecture Checklist
+
+- JWT auth with expiring tokens
+- Role-based access control (`user`, `admin`)
+- Bcrypt password hashing
+- Helmet secure headers
+- API rate limiting
+- `express-validator` input validation
+- Mongo and XSS sanitization middleware
+- Private-by-default report storage
+- Defamation misuse safeguards (no public naming/public feeds)
+- Encryption at rest via database deployment controls (architecture guidance)
+
+## API Route Structure
+
+Auth
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+
+Reports
+- `POST /api/reports` (auth)
+- `GET /api/reports/mine` (auth)
+- `GET /api/reports/:id/pdf` (auth)
+
+Admin
+- `GET /api/admin/reports` (admin)
+- `PATCH /api/admin/reports/:id/status` (admin)
+- `GET /api/admin/analytics` (admin)
+
+Health
+- `GET /api/health`
+
+## Environment Variables
+
+Frontend (`.env`)
+- `VITE_API_BASE_URL`
+- `VITE_MAPBOX_TOKEN`
+
+Backend (`server/.env`)
+- `PORT`
+- `MONGO_URI`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN`
+
+## Run Instructions
+
+Frontend
+```bash
+npm install
+npm run dev
+```
+
+Backend
+```bash
+cd server
+npm install
+npm run dev
+```
+
+Build
+```bash
+npm run build
+cd server && npm run build
 ```

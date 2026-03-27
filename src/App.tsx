@@ -1,27 +1,57 @@
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
 import { Navigate, Route, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage";
+import MainLayout from "./components/layout/MainLayout";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import AboutPage from "./pages/AboutPage";
+import CommunityFraudExperienceHubPage from "./pages/CommunityFraudExperienceHubPage";
+import CommunityAreaTalkPage from "./pages/CommunityAreaTalkPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import DashboardPage from "./pages/DashboardPage";
+import FraudDetectionPage from "./pages/FraudDetectionPage";
+import FraudReportingCenterPage from "./pages/FraudReportingCenterPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import LegalCompliancePage from "./pages/LegalCompliancePage";
+import LocationRiskIntelligencePage from "./pages/LocationRiskIntelligencePage";
 import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 import ProfilePage from "./pages/ProfilePage";
-import FeedPage from "./pages/FeedPage";
+import RecoveryCenterPage from "./pages/RecoveryCenterPage";
+import SignupPage from "./pages/SignupPage";
 
 export default function App() {
   return (
-    <div className="min-h-screen flex flex-col text-slate-900">
-      <Navbar />
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/signup" element={<SignupPage />} />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/feed" element={<FeedPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<DashboardPage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/fraud-detection" element={<FraudDetectionPage />} />
+        <Route path="/fraud-map" element={<LocationRiskIntelligencePage />} />
+        <Route path="/fraud-reporting" element={<FraudReportingCenterPage />} />
+        <Route path="/community-hub" element={<CommunityFraudExperienceHubPage />} />
+        <Route path="/community-area" element={<CommunityAreaTalkPage />} />
+        <Route path="/recovery-center" element={<RecoveryCenterPage />} />
+        <Route path="/legal-compliance" element={<LegalCompliancePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requireAdmin>
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
 
-      <Footer />
-    </div>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }

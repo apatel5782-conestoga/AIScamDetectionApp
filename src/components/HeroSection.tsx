@@ -1,44 +1,32 @@
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0f4c81] to-[#08335a]" />
-      <div className="absolute inset-0 opacity-25" style={{ backgroundImage: "radial-gradient(circle at 70% 20%, #f97316, transparent 36%)" }} />
-
-      <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-20 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] items-center">
-        <div className="text-white">
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-200">Fraud Intelligence Platform</p>
-          <h1 className="mt-3 text-3xl md:text-5xl font-extrabold leading-tight">
-            Spot scam patterns before they cost you money
+    <section className="relative overflow-hidden border-b border-white/10">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.12),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(255,59,48,0.18),transparent_42%)]" />
+      <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-[1.1fr_0.9fr] md:py-20">
+        <div>
+          <p className="text-xs uppercase tracking-[0.26em] text-neutral-400">Fraud Intelligence Command</p>
+          <h1 className="mt-4 max-w-3xl font-display text-4xl leading-tight text-white md:text-6xl">
+            AI Fraud Intelligence & Protection System
           </h1>
-          <p className="mt-4 max-w-2xl text-slate-100 text-base md:text-lg">
-            Use AI-assisted analysis and community insights to detect phishing, impersonation, and social engineering attempts across email, SMS, and social apps.
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-neutral-300 md:text-base">
+            Analyze suspicious communications, classify fraud severity, trigger escalation workflows, and deploy guided security responses from one operational dashboard.
           </p>
-
-          <div className="mt-7 flex flex-wrap gap-3 text-sm">
-            <span className="rounded-full border border-white/30 bg-white/10 px-4 py-1.5">Real-time warning signals</span>
-            <span className="rounded-full border border-white/30 bg-white/10 px-4 py-1.5">Explainable confidence score</span>
-            <span className="rounded-full border border-white/30 bg-white/10 px-4 py-1.5">Community-reported cases</span>
-          </div>
         </div>
 
-        <div className="panel overflow-hidden border-white/15 bg-white/10 backdrop-blur text-white">
-          <img
-            src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1200&q=80"
-            alt="Professional cybersecurity monitoring setup"
-            className="h-52 w-full object-cover"
-          />
-          <div className="p-6 grid grid-cols-2 gap-4 text-sm">
-            <div className="rounded-xl bg-white/10 p-4">
-              <p className="text-slate-200">Cases Analyzed</p>
-              <p className="mt-1 text-2xl font-bold">18,400+</p>
+        <div className="glass-panel p-6">
+          <p className="text-xs uppercase tracking-[0.22em] text-neutral-400">Live Summary</p>
+          <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-neutral-400">Messages Analyzed</p>
+              <p className="mt-2 font-display text-3xl text-white">21,640</p>
             </div>
-            <div className="rounded-xl bg-white/10 p-4">
-              <p className="text-slate-200">Threat Types</p>
-              <p className="mt-1 text-2xl font-bold">42</p>
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-neutral-400">Escalations</p>
+              <p className="mt-2 font-display text-3xl text-white">1,182</p>
             </div>
-            <div className="rounded-xl bg-white/10 p-4 col-span-2">
-              <p className="text-slate-200">Most common trend</p>
-              <p className="mt-1 text-base font-semibold">Account verification phishing messages</p>
+            <div className="col-span-2 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-neutral-400">Dominant Pattern</p>
+              <p className="mt-2 text-base text-white">Bank impersonation with OTP extraction</p>
             </div>
           </div>
         </div>

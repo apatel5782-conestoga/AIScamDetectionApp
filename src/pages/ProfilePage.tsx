@@ -1,128 +1,118 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useAuth } from "../context/AuthContext";
 
 type ProfileDetails = {
   name: string;
+  username: string;
   email: string;
-  reports: string;
+  phone: string;
   memberSince: string;
 };
 
 export default function ProfilePage() {
+  const { user, refreshProfile, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<ProfileDetails>({
-    name: "Demo User",
-    email: "demo.user@example.com",
-    reports: "3 Submitted",
+    name: "Demo Analyst",
+    username: "fraud_analyst",
+    email: "analyst@example.com",
+    phone: "(555) 019-4821",
     memberSince: "January 2026",
   });
   const [draft, setDraft] = useState<ProfileDetails>(profile);
+  const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    setProfile((prev) => ({
+      ...prev,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+    }));
+    setDraft((prev) => ({
+      ...prev,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+    }));
+  }, [user]);
+
+  useEffect(() => {
+    refreshProfile().catch(() => {
+      setError("Unable to load profile details.");
+    });
+  }, [refreshProfile]);
 
   const handleSave = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setProfile(draft);
-    setIsEditing(false);
-  };
-
-  const handleEdit = () => {
-    setDraft(profile);
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    setDraft(profile);
-    setIsEditing(false);
+    setError(null);
+    setIsSaving(true);
+    updateProfile({
+      name: draft.name,
+      username: draft.username,
+      email: draft.email,
+      phone: draft.phone,
+    })
+      .then(() => {
+        setProfile(draft);
+        setIsEditing(false);
+      })
+      .catch((err: Error) => setError(err.message || "Failed to update profile."))
+      .finally(() => setIsSaving(false));
   };
 
   return (
-    <main className="flex-1 px-4 py-10">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <section className="panel overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1400&q=80"
-            alt="Professional workspace with analytics display"
-            className="h-44 w-full object-cover"
-          />
-          <div className="p-6 md:p-8">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#0f4c81]">Account Center</p>
-            <h1 className="mt-2 text-3xl font-bold text-slate-900">My Profile</h1>
-            <p className="mt-2 text-slate-600">Manage personal details and track your scam reporting activity.</p>
-            <div className="mt-5">
-              {!isEditing && (
-                <button type="button" onClick={handleEdit} className="btn-primary">
-                  Edit Profile
-                </button>
-              )}
+    <main className="mx-auto max-w-6xl px-4 py-10">
+      <section className="glass-panel p-6 md:p-8">
+        <p className="text-xs uppercase tracking-[0.2em] text-neutral-400">Account Center</p>
+        <h1 className="mt-2 font-display text-3xl text-white">Profile</h1>
+        <p className="mt-2 text-sm text-neutral-300">Manage your account details and contact information.</p>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><p className="text-xs text-neutral-400">Name</p><p className="mt-1 text-white">{profile.name}</p></div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><p className="text-xs text-neutral-400">Username</p><p className="mt-1 text-white">{profile.username}</p></div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><p className="text-xs text-neutral-400">Email</p><p className="mt-1 text-white">{profile.email}</p></div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><p className="text-xs text-neutral-400">Phone</p><p className="mt-1 text-white">{profile.phone}</p></div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><p className="text-xs text-neutral-400">Member Since</p><p className="mt-1 text-white">{profile.memberSince}</p></div>
+        </div>
+
+        {error && !isEditing && <p className="mt-4 text-sm text-red-400">{error}</p>}
+
+        {!isEditing ? (
+          <button type="button" onClick={() => setIsEditing(true)} className="btn-primary mt-5">Edit Profile</button>
+        ) : (
+          <form onSubmit={handleSave} className="mt-5 grid gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <input value={draft.name} onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))} className="form-input" placeholder="Full name" required />
+              <input value={draft.username} onChange={(event) => setDraft((prev) => ({ ...prev, username: event.target.value }))} className="form-input" placeholder="Username" required />
+              <input type="email" value={draft.email} onChange={(event) => setDraft((prev) => ({ ...prev, email: event.target.value }))} className="form-input" placeholder="Email" required />
+              <input value={draft.phone} onChange={(event) => setDraft((prev) => ({ ...prev, phone: event.target.value }))} className="form-input" placeholder="Phone number" required />
+              <input value={draft.memberSince} onChange={(event) => setDraft((prev) => ({ ...prev, memberSince: event.target.value }))} className="form-input sm:col-span-2" placeholder="Member since" required />
             </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl bg-slate-50 p-4 border border-slate-200">
-                <p className="text-xs uppercase tracking-wide text-slate-500">Name</p>
-                <p className="text-slate-900 font-semibold mt-1">{profile.name}</p>
-              </div>
-              <div className="rounded-xl bg-slate-50 p-4 border border-slate-200">
-                <p className="text-xs uppercase tracking-wide text-slate-500">Email</p>
-                <p className="text-slate-900 font-semibold mt-1">{profile.email}</p>
-              </div>
-              <div className="rounded-xl bg-slate-50 p-4 border border-slate-200">
-                <p className="text-xs uppercase tracking-wide text-slate-500">Reports</p>
-                <p className="text-slate-900 font-semibold mt-1">{profile.reports}</p>
-              </div>
-              <div className="rounded-xl bg-slate-50 p-4 border border-slate-200">
-                <p className="text-xs uppercase tracking-wide text-slate-500">Member Since</p>
-                <p className="text-slate-900 font-semibold mt-1">{profile.memberSince}</p>
-              </div>
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            <div className="flex gap-2">
+              <button type="submit" className="btn-primary" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDraft(profile);
+                  setIsEditing(false);
+                }}
+                className="btn-secondary"
+              >
+                Cancel
+              </button>
             </div>
-
-            {isEditing && (
-              <form onSubmit={handleSave} className="mt-6 grid gap-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <input
-                    value={draft.name}
-                    onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f4c81]/30"
-                    placeholder="Name"
-                    required
-                  />
-                  <input
-                    type="email"
-                    value={draft.email}
-                    onChange={(event) => setDraft((prev) => ({ ...prev, email: event.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f4c81]/30"
-                    placeholder="Email"
-                    required
-                  />
-                  <input
-                    value={draft.reports}
-                    onChange={(event) => setDraft((prev) => ({ ...prev, reports: event.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f4c81]/30"
-                    placeholder="Reports"
-                    required
-                  />
-                  <input
-                    value={draft.memberSince}
-                    onChange={(event) =>
-                      setDraft((prev) => ({ ...prev, memberSince: event.target.value }))
-                    }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f4c81]/30"
-                    placeholder="Member since"
-                    required
-                  />
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <button type="submit" className="btn-primary">
-                    Save Changes
-                  </button>
-                  <button type="button" onClick={handleCancel} className="btn-secondary">
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </section>
-      </div>
+          </form>
+        )}
+      </section>
     </main>
   );
 }

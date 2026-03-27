@@ -1,64 +1,134 @@
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Card from "../components/ui/Card";
+import PageHeader from "../components/ui/PageHeader";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
+  const { login, loginAsDemo } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [captchaInput, setCaptchaInput] = useState("");
+  const [isHuman, setIsHuman] = useState(false);
+  const [captchaSeed, setCaptchaSeed] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const redirectPath = (location.state as { from?: string } | undefined)?.from || "/";
+  const captchaCode = useMemo(() => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for (let i = 0; i < 5; i += 1) {
+      code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return code;
+  }, [captchaSeed]);
+
+  const isCaptchaValid = captchaInput.trim().toUpperCase() === captchaCode;
+  const canSubmit =
+    username.trim().length > 0 &&
+    password.trim().length > 0 &&
+    isHuman &&
+    isCaptchaValid;
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!canSubmit) {
+      return;
+    }
+    setError(null);
+    setIsSubmitting(true);
+    login(username, password)
+      .then(() => navigate(redirectPath))
+      .catch((err: Error) => {
+        setError(err.message || "Login failed. Please try again.");
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   return (
-    <main className="flex-1 px-4 py-10 md:py-14">
-      <div className="max-w-6xl mx-auto grid gap-6 lg:grid-cols-2">
-        <section className="panel overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80"
-            alt="Professional team discussing online security"
-            className="h-56 w-full object-cover"
-          />
-          <div className="p-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#0f4c81]">Secure Access</p>
-            <h1 className="mt-2 text-3xl font-bold text-slate-900">Welcome back</h1>
-            <p className="mt-3 text-slate-600">
-              Log in to review your reports, follow suspicious trends, and track alerts from the community feed.
-            </p>
-          </div>
-        </section>
-
-        <section className="panel p-6 md:p-8">
-          <h2 className="text-xl font-bold text-slate-900">Log in to your account</h2>
-          <p className="text-sm text-slate-600 mt-1">Use your registered email and password.</p>
-
-          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-            <label className="block">
-              <span className="text-sm text-slate-700">Email</span>
+    <div className="min-h-screen bg-gray-50 px-6 py-16">
+      <div className="mx-auto max-w-xl space-y-6">
+        <PageHeader title="Sign In" subtitle="Secure access to the AI Fraud Intelligence & Protection System." />
+        <Card className="p-6">
+          <form className="grid gap-4" onSubmit={handleSubmit}>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Username</label>
               <input
-                type="email"
+                className="form-input mt-2"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                placeholder="Username or email"
+                autoComplete="username"
                 required
-                placeholder="you@example.com"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f4c81]/30"
               />
-            </label>
-
-            <label className="block">
-              <span className="text-sm text-slate-700">Password</span>
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Password</label>
               <input
+                className="form-input mt-2"
                 type="password"
-                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
                 placeholder="Enter your password"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f4c81]/30"
+                autoComplete="current-password"
+                required
               />
-            </label>
-
-            <button type="submit" className="btn-primary w-full">
-              Log In
+            </div>
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Captcha code</p>
+                  <p className="mt-1 font-mono text-lg font-semibold text-gray-900">{captchaCode}</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => {
+                    setCaptchaInput("");
+                    setCaptchaSeed((prev) => prev + 1);
+                  }}
+                >
+                  Refresh
+                </button>
+              </div>
+              <input
+                className="form-input mt-3"
+                value={captchaInput}
+                onChange={(event) => setCaptchaInput(event.target.value)}
+                placeholder="Type the code above"
+                required
+              />
+              <label className="mt-3 flex items-center gap-2 text-sm text-gray-600">
+                <input type="checkbox" checked={isHuman} onChange={(event) => setIsHuman(event.target.checked)} />
+                I am human
+              </label>
+            </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            <button className="btn-primary" type="submit" disabled={!canSubmit || isSubmitting}>
+              {isSubmitting ? "Signing in..." : "Sign in"}
             </button>
           </form>
-
-          <p className="mt-5 text-sm text-slate-600">
-            New user? <Link to="/signup" className="text-[#0f4c81] font-semibold">Create an account</Link>
-          </p>
-        </section>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-gray-500">
+            <Link className="text-gray-900 underline" to="/forgot-password">Forgot password?</Link>
+            <span>Need account access? <Link className="text-gray-900 underline" to="/signup">Sign up</Link></span>
+          </div>
+          <div className="mt-6 border-t border-gray-100 pt-4">
+            <p className="text-xs uppercase tracking-wide text-gray-400">Demo access</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <button className="btn-primary" onClick={() => { loginAsDemo("user"); navigate(redirectPath); }}>
+                Login as User
+              </button>
+              <button className="btn-secondary" onClick={() => { loginAsDemo("admin"); navigate("/admin"); }}>
+                Login as Admin
+              </button>
+            </div>
+          </div>
+        </Card>
       </div>
-    </main>
+    </div>
   );
 }
