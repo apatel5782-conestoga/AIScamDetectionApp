@@ -3,6 +3,8 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import analysisRouter from "./routes/analysisRoutes";
+import chatbotRouter from "./routes/chatbotRoutes";
+import newsRouter from "./routes/newsRoutes";
 import { healthController } from "./controllers/healthController";
 import { errorHandler, notFoundHandler } from "./middleware/errorMiddleware";
 import adminRouter from "./routes/adminRoutes";
@@ -16,13 +18,14 @@ export function createApp() {
 
   app.use(helmet());
   app.use(cors({ origin: true, credentials: false }));
-  app.use(express.json({ limit: "1mb" }));
+  app.use(express.json({ limit: "5mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
   app.use(
     "/api",
     rateLimit({
       windowMs: 15 * 60 * 1000,
-      limit: 120,
+      limit: 200,
       standardHeaders: "draft-8",
       legacyHeaders: false,
     }),
@@ -35,6 +38,8 @@ export function createApp() {
   app.use("/api/reports", reportRouter);
   app.use("/api/escalations", escalationRouter);
   app.use("/api/admin", adminRouter);
+  app.use("/api/chatbot", chatbotRouter);
+  app.use("/api/news", newsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

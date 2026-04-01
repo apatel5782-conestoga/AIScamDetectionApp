@@ -36,6 +36,8 @@ export interface SimilarCase {
   matchingTraits: string[];
   severity: FraudSeverity;
   channel: FraudChannel;
+  caseSummary?: string;
+  sourceType?: "prior_analysis" | "reference_playbook";
 }
 
 export interface GeneratedReportDraft {

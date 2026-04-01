@@ -3,6 +3,7 @@ import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AboutPage from "./pages/AboutPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminLoginPage from "./pages/AdminLoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import FraudDetectionPage from "./pages/FraudDetectionPage";
 import FraudReportingCenterPage from "./pages/FraudReportingCenterPage";
@@ -17,6 +18,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/admin-login" element={<AdminLoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/signup" element={<SignupPage />} />
 

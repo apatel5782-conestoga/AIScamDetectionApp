@@ -3,10 +3,10 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import PremiumButton from "../ui/PremiumButton";
 import Sidebar from "./Sidebar";
+import ChatBot from "../ChatBot";
 
 function getPageLabel(pathname: string): string {
   if (pathname === "/") return "Dashboard";
-
   return pathname
     .split("/")
     .filter(Boolean)
@@ -62,6 +62,11 @@ export default function MainLayout() {
               {user ? (
                 <>
                   <p className="hidden text-sm text-gray-500 sm:block">{user.name}</p>
+                  {user.role === "admin" && (
+                    <Link to="/admin" className="hidden sm:block rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">
+                      Admin Panel
+                    </Link>
+                  )}
                   <Link to="/profile" className="btn-secondary !px-3 !py-2 !text-xs">
                     Profile
                   </Link>
@@ -95,6 +100,9 @@ export default function MainLayout() {
           </div>
         </main>
       </div>
+
+      {/* Floating AI Chatbot — available on all pages */}
+      <ChatBot />
     </div>
   );
 }

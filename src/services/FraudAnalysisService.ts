@@ -1,5 +1,5 @@
 import type { FraudAnalysis, FraudChannel, EvidenceFileMeta } from "../types/fraud";
-import { apiRequest } from "./api";
+import { apiRequest, getApiBase } from "./api";
 
 const LAST_ANALYSIS_KEY = "last_fraud_triage_analysis";
 
@@ -33,6 +33,7 @@ export type CreateAnalysisPayload = {
   channel: FraudChannel;
   evidenceSummary?: string;
   evidenceFiles: EvidenceFileMeta[];
+  actualFiles?: File[];
   authToken?: string | null;
 };
 
@@ -65,19 +66,62 @@ function mapAnalysis(response: AnalysisApiResponse): FraudAnalysis {
 }
 
 async function createAnalysis(payload: CreateAnalysisPayload): Promise<FraudAnalysis> {
-  const body = {
-    messageText: payload.message,
-    channel: payload.channel,
-    evidenceFiles: payload.evidenceFiles,
-    ...(payload.evidenceSummary?.trim() ? { evidenceSummary: payload.evidenceSummary.trim() } : {}),
-  };
+  const apiBase = getApiBase();
+  const url = `${apiBase}/analyses`;
 
-  const response = await apiRequest<AnalysisApiResponse>("/analyses", {
-    method: "POST",
-    authToken: payload.authToken,
-    body: JSON.stringify(body),
-  });
+  const hasActualFiles = payload.actualFiles && payload.actualFiles.length > 0;
 
+  let fetchResponse: Response;
+
+  if (hasActualFiles) {
+    // Use FormData to send actual files for AI extraction
+    const formData = new FormData();
+    formData.append("messageText", payload.message);
+    formData.append("channel", payload.channel);
+    if (payload.evidenceSummary?.trim()) {
+      formData.append("evidenceSummary", payload.evidenceSummary.trim());
+    }
+    for (const file of payload.actualFiles!) {
+      formData.append("files", file);
+    }
+
+    fetchResponse = await fetch(url, {
+      method: "POST",
+      headers: payload.authToken ? { Authorization: `Bearer ${payload.authToken}` } : {},
+      body: formData,
+    });
+  } else {
+    // JSON submission (no files)
+    const body = {
+      messageText: payload.message,
+      channel: payload.channel,
+      evidenceFiles: payload.evidenceFiles,
+      ...(payload.evidenceSummary?.trim() ? { evidenceSummary: payload.evidenceSummary.trim() } : {}),
+    };
+
+    fetchResponse = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(payload.authToken ? { Authorization: `Bearer ${payload.authToken}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+  }
+
+  if (!fetchResponse.ok) {
+    const contentType = fetchResponse.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const errorData = (await fetchResponse.json()) as { message?: string; errors?: Array<{ msg?: string }> };
+      if (Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+        throw new Error(errorData.errors.map((e) => e.msg).join(" | "));
+      }
+      throw new Error(errorData.message || `Request failed: ${fetchResponse.status}`);
+    }
+    throw new Error(`Request failed: ${fetchResponse.status}`);
+  }
+
+  const response = (await fetchResponse.json()) as AnalysisApiResponse;
   const analysis = mapAnalysis(response);
   localStorage.setItem(LAST_ANALYSIS_KEY, JSON.stringify(analysis));
   return analysis;
@@ -88,7 +132,6 @@ async function getMyAnalyses(authToken: string): Promise<FraudAnalysis[]> {
     method: "GET",
     authToken,
   });
-
   return response.map(mapAnalysis);
 }
 
@@ -99,7 +142,6 @@ function saveLatestAnalysis(analysis: FraudAnalysis) {
 function loadLatestAnalysis(): FraudAnalysis | null {
   const raw = localStorage.getItem(LAST_ANALYSIS_KEY);
   if (!raw) return null;
-
   try {
     return JSON.parse(raw) as FraudAnalysis;
   } catch {

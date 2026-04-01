@@ -5,6 +5,7 @@ import FraudAnalysisCard from "../components/FraudAnalysisCard";
 import Card from "../components/ui/Card";
 import PageHeader from "../components/ui/PageHeader";
 import LegalDisclaimer from "../components/LegalDisclaimer";
+import OfficialReportingResources from "../components/OfficialReportingResources";
 import RiskBreakdown from "../components/RiskBreakdown";
 import SecurityRecommendations from "../components/SecurityRecommendations";
 import { useAuth } from "../context/AuthContext";
@@ -112,6 +113,7 @@ export default function FraudDetectionPage() {
           size: item.file.size,
           type: item.file.type || "application/octet-stream",
         })),
+        actualFiles: files.map((item) => item.file),
         authToken: token,
       });
       setAnalysis(result);
@@ -256,6 +258,7 @@ export default function FraudDetectionPage() {
           />
           <RiskBreakdown analysis={analysis} />
           <SecurityRecommendations analysis={analysis} />
+          <OfficialReportingResources analysis={analysis} />
         </>
       )}
 

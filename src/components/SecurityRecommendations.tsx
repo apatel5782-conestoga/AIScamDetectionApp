@@ -12,9 +12,9 @@ export default function SecurityRecommendations({ analysis }: Props) {
 
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-semibold text-gray-900">Recommended next steps</h3>
+      <h3 className="text-xl font-semibold text-gray-900">What To Do Next</h3>
       <p className="mt-2 text-sm text-gray-600">
-        These actions are prioritized from the current triage result so the user knows what to do next.
+        This response plan is tailored to the current case so the user knows what to do after a suspicious email, text, phone call, file, or link.
       </p>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         {analysis.recommendedActions.map((action) => (
