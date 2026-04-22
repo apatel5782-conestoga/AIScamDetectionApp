@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import FraudWatchLogo from "./brand/FraudWatchLogo";
 
 const navItemClassName = ({ isActive }: { isActive: boolean }) =>
   `text-xs uppercase tracking-wide transition ${isActive ? "text-white" : "text-neutral-400 hover:text-neutral-100"}`;
@@ -11,10 +12,8 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
         <Link to="/" className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl border border-blue-400/40 bg-blue-500/20 font-display text-lg text-white">AI</div>
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.22em] text-neutral-400">Enterprise Suite</p>
-            <p className="font-display text-sm text-white">AI Fraud Intelligence & Protection System</p>
+          <div className="rounded-2xl bg-white px-3 py-2">
+            <FraudWatchLogo widthClassName="w-[185px]" />
           </div>
         </Link>
 

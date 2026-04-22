@@ -31,6 +31,8 @@ export interface ISimilarCase {
   matchingTraits: string[];
   severity: AnalysisSeverity;
   channel: "Email" | "SMS" | "Phone" | "Social Media" | "Website" | "Other";
+  caseSummary?: string;
+  sourceType?: "prior_analysis" | "reference_playbook";
 }
 
 export interface IGeneratedReportDraft {
@@ -128,6 +130,8 @@ const similarCaseSchema = new Schema<ISimilarCase>(
       enum: ["Email", "SMS", "Phone", "Social Media", "Website", "Other"],
       required: true,
     },
+    caseSummary: { type: String },
+    sourceType: { type: String, enum: ["prior_analysis", "reference_playbook"] },
   },
   { _id: false },
 );

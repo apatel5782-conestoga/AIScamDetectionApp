@@ -5,10 +5,12 @@ type ApiRequestOptions = RequestInit & {
 };
 
 export async function apiRequest<T>(path: string, options?: ApiRequestOptions): Promise<T> {
+  const isFormData = options?.body instanceof FormData;
+
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(options?.authToken ? { Authorization: `Bearer ${options.authToken}` } : {}),
       ...(options?.headers || {}),
     },

@@ -1,0 +1,14 @@
+<svg width="520" height="112" viewBox="0 0 520 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="520" height="112" rx="24" fill="white"/>
+  <g transform="translate(24 16)">
+    <path d="M40 4C48.51 10.368 58.451 14.03 70 14.99V32.333C70 51.706 57.616 67.357 40 73.667C22.384 67.357 10 51.706 10 32.333V14.99C21.549 14.03 31.49 10.368 40 4Z" fill="#0F172A"/>
+    <path d="M24.583 37.333C28.9 30.975 34.375 27.797 40 27.797C45.625 27.797 51.1 30.975 55.417 37.333C51.1 43.691 45.625 46.87 40 46.87C34.375 46.87 28.9 43.691 24.583 37.333Z" fill="white"/>
+    <circle cx="40" cy="37.333" r="8.5" fill="#14B8A6"/>
+    <circle cx="40" cy="37.333" r="3" fill="#0F172A"/>
+    <circle cx="57.667" cy="19.667" r="4.167" fill="#14B8A6"/>
+  </g>
+  <text x="118" y="67" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="800" letter-spacing="-1.4">
+    <tspan fill="#0F172A">Fraud</tspan><tspan fill="#14B8A6">Watch</tspan>
+  </text>
+  <text x="120" y="84" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2.4" fill="#64748B">FRAUD DETECTION INTELLIGENCE</text>
+</svg>

@@ -6,7 +6,7 @@ export default function HeroSection() {
         <div>
           <p className="text-xs uppercase tracking-[0.26em] text-neutral-400">Fraud Intelligence Command</p>
           <h1 className="mt-4 max-w-3xl font-display text-4xl leading-tight text-white md:text-6xl">
-            AI Fraud Intelligence & Protection System
+            FraudWatch
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-7 text-neutral-300 md:text-base">
             Analyze suspicious communications, classify fraud severity, trigger escalation workflows, and deploy guided security responses from one operational dashboard.

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import FraudWatchLogo from "../brand/FraudWatchLogo";
 
 type NavItem = {
   label: string;
@@ -59,9 +60,8 @@ export default function DashboardShell() {
         }`}
       >
         <div className="flex h-full flex-col px-4 py-5">
-          <Link to="/" className="rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-blue-300">Enterprise Console</p>
-            <p className="mt-1 font-display text-sm text-white">AI Fraud Intelligence & Protection System</p>
+          <Link to="/" className="rounded-2xl bg-white px-4 py-3">
+            <FraudWatchLogo widthClassName="w-[185px]" />
           </Link>
 
           <nav className="mt-6 space-y-1">

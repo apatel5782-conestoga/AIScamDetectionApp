@@ -8,7 +8,7 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 py-20">
           <p className="text-xs uppercase tracking-[0.24em] text-blue-300">Enterprise Fraud Defense Platform</p>
           <h1 className="mt-4 max-w-4xl font-display text-4xl leading-tight text-white md:text-6xl">
-            AI Fraud Intelligence & Protection System
+            FraudWatch
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-neutral-300 md:text-base">
             Full-stack fraud intelligence platform with detection engine, severity escalation, reporting workflows, location risk analytics, and compliance-safe recovery guidance.

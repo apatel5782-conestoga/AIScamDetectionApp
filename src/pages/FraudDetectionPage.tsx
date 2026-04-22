@@ -5,6 +5,7 @@ import FraudAnalysisCard from "../components/FraudAnalysisCard";
 import Card from "../components/ui/Card";
 import PageHeader from "../components/ui/PageHeader";
 import LegalDisclaimer from "../components/LegalDisclaimer";
+import OfficialReportingResources from "../components/OfficialReportingResources";
 import RiskBreakdown from "../components/RiskBreakdown";
 import SecurityRecommendations from "../components/SecurityRecommendations";
 import { useAuth } from "../context/AuthContext";
@@ -112,6 +113,7 @@ export default function FraudDetectionPage() {
           size: item.file.size,
           type: item.file.type || "application/octet-stream",
         })),
+        actualFiles: files.map((item) => item.file),
         authToken: token,
       });
       setAnalysis(result);
@@ -129,12 +131,12 @@ export default function FraudDetectionPage() {
         subtitle="Run an AI-assisted triage check, review the reasoning, and turn the result into a private report."
       />
 
-      <Card className="p-6">
+      <Card className="border-slate-200 bg-[linear-gradient(180deg,#f8fcff_0%,#edf4f8_100%)] p-6 shadow-[0_18px_38px_rgba(15,23,42,0.10)]">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-gray-400">Evidence Intake</p>
-            <h2 className="mt-2 text-xl font-semibold text-gray-900">Prepare a guided triage submission</h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Evidence Intake</p>
+            <h2 className="mt-2 text-xl font-semibold text-slate-900">Prepare a guided triage submission</h2>
+            <p className="mt-2 text-sm text-slate-600">
               Paste the suspicious message, describe any attachments, and include supporting file metadata.
             </p>
           </div>
@@ -152,15 +154,15 @@ export default function FraudDetectionPage() {
         </div>
 
         <div
-          className="mt-5 rounded-2xl border-2 border-dashed border-gray-300 bg-white p-6 text-center transition hover:border-blue-400"
+          className="mt-5 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/90 p-6 text-center shadow-[inset_0_0_0_1px_rgba(255,255,255,0.65)] transition hover:border-teal-500"
           onDragOver={(event) => event.preventDefault()}
           onDrop={handleDrop}
         >
-          <p className="text-sm text-gray-600">Drop files here</p>
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="text-sm text-slate-700">Drop files here</p>
+          <p className="mt-2 text-xs text-slate-500">
             Supported: PDFs, images, email files (.eml/.msg), docs, sheets, archives, and more.
           </p>
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="mt-2 text-xs text-slate-500">
             Max {MAX_FILES} files, {MAX_FILE_SIZE_MB} MB each.
           </p>
         </div>
@@ -169,16 +171,19 @@ export default function FraudDetectionPage() {
 
         {files.length > 0 && (
           <div className="mt-5 grid gap-3">
-            <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center justify-between text-xs text-slate-500">
               <span>{files.length} files selected</span>
               <span>Total size: {formatBytes(totalSize)}</span>
             </div>
             <div className="grid gap-2">
               {files.map((item) => (
-                <div key={item.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-2">
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between rounded-xl border border-slate-300 bg-white/95 px-4 py-2 shadow-sm"
+                >
                   <div>
-                    <p className="text-sm font-medium text-gray-800">{item.file.name}</p>
-                    <p className="text-xs text-gray-500">{formatBytes(item.file.size)}</p>
+                    <p className="text-sm font-medium text-slate-900">{item.file.name}</p>
+                    <p className="text-xs text-slate-500">{formatBytes(item.file.size)}</p>
                   </div>
                   <button type="button" className="btn-secondary !px-3 !py-1.5 !text-xs" onClick={() => handleRemove(item.id)}>
                     Remove
@@ -190,10 +195,10 @@ export default function FraudDetectionPage() {
         )}
 
         <div className="mt-6 grid gap-4 lg:grid-cols-[2fr_1fr]">
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Message Channel</label>
+          <div className="rounded-2xl border border-slate-200 bg-white/78 p-4 shadow-[0_12px_28px_rgba(15,23,42,0.05)] backdrop-blur-sm">
+            <label className="text-xs font-semibold uppercase tracking-wide text-slate-600">Message Channel</label>
             <select
-              className="form-input mt-2"
+              className="form-input mt-2 !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_8px_20px_rgba(15,23,42,0.08)]"
               value={channel}
               onChange={(event) => setChannel(event.target.value as FraudChannel)}
             >
@@ -205,24 +210,24 @@ export default function FraudDetectionPage() {
               <option>Other</option>
             </select>
 
-            <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-gray-500">Paste Suspicious Content</label>
+            <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-slate-600">Paste Suspicious Content</label>
             <textarea
-              className="form-input mt-2 min-h-[160px]"
+              className="form-input mt-2 min-h-[160px] !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
               value={messageText}
               onChange={(event) => setMessageText(event.target.value)}
               placeholder="Paste the suspicious email, SMS, call summary, or chat transcript here."
             />
 
-            <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-gray-500">Evidence Notes</label>
+            <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-slate-600">Evidence Notes</label>
             <textarea
-              className="form-input mt-2 min-h-[110px]"
+              className="form-input mt-2 min-h-[110px] !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
               value={evidenceSummary}
               onChange={(event) => setEvidenceSummary(event.target.value)}
               placeholder="Optional: summarize screenshots, attachments, timeline details, or other evidence context."
             />
           </div>
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-            <p className="text-xs uppercase tracking-wide text-gray-400">How this helps</p>
+          <div className="rounded-2xl border border-slate-200 bg-white/82 p-4 text-sm text-slate-700 shadow-[0_12px_28px_rgba(15,23,42,0.05)] backdrop-blur-sm">
+            <p className="text-xs uppercase tracking-wide text-slate-500">How this helps</p>
             <ul className="mt-3 space-y-2">
               <li>Highlights suspicious language and impersonation patterns.</li>
               <li>Produces recommended next steps you can act on immediately.</li>
@@ -237,7 +242,7 @@ export default function FraudDetectionPage() {
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <label className="flex items-center gap-2 text-sm text-gray-600">
+          <label className="flex items-center gap-2 text-sm text-slate-700">
             <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
             I have consent to upload these materials for analysis.
           </label>
@@ -256,6 +261,7 @@ export default function FraudDetectionPage() {
           />
           <RiskBreakdown analysis={analysis} />
           <SecurityRecommendations analysis={analysis} />
+          <OfficialReportingResources analysis={analysis} />
         </>
       )}
 

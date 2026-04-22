@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Card from "../components/ui/Card";
 import PageHeader from "../components/ui/PageHeader";
 import SeverityIndicator from "../components/SeverityIndicator";
+import NewsWidget from "../components/NewsWidget";
 import { useAuth } from "../context/AuthContext";
 import { fetchDashboardData } from "../services/dashboardService";
 import type { DashboardData } from "../types/dashboard";
@@ -190,6 +191,8 @@ export default function DashboardPage() {
           </div>
         </Card>
       </section>
+
+      <NewsWidget />
     </div>
   );
 }

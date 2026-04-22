@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
-import { validationResult } from "express-validator";
 import AnalysisSessionModel, { type IAnalysisSession } from "../models/AnalysisSession";
 import SystemLogModel from "../models/SystemLog";
 import { analyzeSubmission } from "../services/analysisService";
+import { extractTextFromFiles } from "../services/fileExtractionService";
+import { analyzeUrlsInText } from "../services/urlAnalysisService";
 
 function serializeAnalysis(session: IAnalysisSession & { _id: unknown }) {
   return {
@@ -32,24 +33,61 @@ function serializeAnalysis(session: IAnalysisSession & { _id: unknown }) {
 }
 
 export async function createAnalysisSessionController(req: Request, res: Response) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  const messageText = String(req.body?.messageText || "").trim();
+  const channel = String(req.body?.channel || "Other");
+  const evidenceSummary = req.body?.evidenceSummary ? String(req.body.evidenceSummary).trim() : undefined;
 
-  const evidenceFiles = Array.isArray(req.body.evidenceFiles)
-    ? req.body.evidenceFiles.map((file: Record<string, unknown>) => ({
-        name: String(file.name || "evidence"),
-        size: Number(file.size || 0),
-        type: String(file.type || "application/octet-stream"),
-      }))
-    : [];
+  if (!messageText || messageText.length < 10) {
+    return res.status(400).json({ errors: [{ msg: "messageText must be at least 10 characters." }] });
+  }
+
+  const validChannels = ["Email", "SMS", "Phone", "Social Media", "Website", "Other"];
+  if (!validChannels.includes(channel)) {
+    return res.status(400).json({ errors: [{ msg: "Invalid channel." }] });
+  }
+
+  // Handle uploaded files (from multer)
+  const uploadedFiles = (req.files as Express.Multer.File[]) || [];
+
+  let extractedFileContent: string | undefined;
+  let evidenceFiles: Array<{ name: string; size: number; type: string }> = [];
+
+  if (uploadedFiles.length > 0) {
+    extractedFileContent = await extractTextFromFiles(
+      uploadedFiles.map((f) => ({
+        buffer: f.buffer,
+        mimetype: f.mimetype,
+        originalname: f.originalname,
+      })),
+    );
+    evidenceFiles = uploadedFiles.map((f) => ({
+      name: f.originalname,
+      size: f.size,
+      type: f.mimetype || "application/octet-stream",
+    }));
+  } else if (Array.isArray(req.body?.evidenceFiles)) {
+    // Fallback: JSON metadata only (no actual files)
+    evidenceFiles = req.body.evidenceFiles.map((file: Record<string, unknown>) => ({
+      name: String(file.name || "evidence"),
+      size: Number(file.size || 0),
+      type: String(file.type || "application/octet-stream"),
+    }));
+  }
+
+  // Check any URLs found in the message
+  const urlAnalysis = await analyzeUrlsInText(messageText).catch(() => ({ urls: [], summary: "" }));
+  const urlContext = urlAnalysis.summary
+    ? `\n\nURL Analysis Results:\n${urlAnalysis.summary}`
+    : "";
 
   const analysisPayload = await analyzeSubmission({
-      createdBy: req.user?.userId,
-      messageText: String(req.body.messageText || ""),
-      channel: req.body.channel,
-      evidenceSummary: req.body.evidenceSummary ? String(req.body.evidenceSummary) : undefined,
-      evidenceFiles,
-    });
+    createdBy: req.user?.userId,
+    messageText,
+    channel: channel as IAnalysisSession["channel"],
+    evidenceSummary,
+    evidenceFiles,
+    extractedFileContent: (extractedFileContent || "") + urlContext || undefined,
+  });
 
   const analysis = await AnalysisSessionModel.create(analysisPayload);
 

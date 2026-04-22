@@ -196,7 +196,7 @@ export default function FraudReportingCenterPage() {
 
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <input
-              className="form-input"
+              className="form-input !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_8px_20px_rgba(15,23,42,0.08)]"
               placeholder="Case title"
               value={form.title}
               onChange={(event) => setForm({ ...form, title: event.target.value })}
@@ -205,14 +205,14 @@ export default function FraudReportingCenterPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <input
-                className="form-input"
+                className="form-input !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_8px_20px_rgba(15,23,42,0.08)]"
                 placeholder="Fraud type"
                 value={form.fraudType}
                 onChange={(event) => setForm({ ...form, fraudType: event.target.value })}
                 required
               />
               <select
-                className="form-input"
+                className="form-input !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_8px_20px_rgba(15,23,42,0.08)]"
                 value={form.channel}
                 onChange={(event) => setForm({ ...form, channel: event.target.value as FraudChannel })}
               >
@@ -227,7 +227,7 @@ export default function FraudReportingCenterPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <select
-                className="form-input"
+                className="form-input !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_8px_20px_rgba(15,23,42,0.08)]"
                 value={form.severity}
                 onChange={(event) => setForm({ ...form, severity: event.target.value as FraudSeverity })}
               >
@@ -237,7 +237,7 @@ export default function FraudReportingCenterPage() {
                 <option>Critical Risk</option>
               </select>
               <input
-                className="form-input"
+                className="form-input !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_8px_20px_rgba(15,23,42,0.08)]"
                 type="number"
                 min={0}
                 placeholder="Estimated amount lost (optional)"
@@ -247,7 +247,7 @@ export default function FraudReportingCenterPage() {
             </div>
 
             <textarea
-              className="form-input min-h-[150px]"
+              className="form-input min-h-[150px] !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
               placeholder="Incident summary"
               value={form.description}
               onChange={(event) => setForm({ ...form, description: event.target.value })}
@@ -255,7 +255,7 @@ export default function FraudReportingCenterPage() {
             />
 
             <textarea
-              className="form-input min-h-[130px]"
+              className="form-input min-h-[130px] !rounded-2xl !border-2 !border-slate-300 !bg-slate-50 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
               placeholder="Evidence summary"
               value={form.evidenceDescription}
               onChange={(event) => setForm({ ...form, evidenceDescription: event.target.value })}
