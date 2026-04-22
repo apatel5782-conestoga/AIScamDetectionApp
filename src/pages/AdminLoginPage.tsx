@@ -36,7 +36,6 @@ export default function AdminLoginPage() {
   const handleDemoAdmin = () => {
     setError(null);
     setIsSubmitting(true);
-
     loginAsDemo("admin")
       .then(() => navigate("/admin"))
       .catch((err: Error) => setError(err.message || "Demo admin login failed."))
